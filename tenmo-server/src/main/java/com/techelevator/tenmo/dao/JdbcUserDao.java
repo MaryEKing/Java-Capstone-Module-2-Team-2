@@ -46,6 +46,18 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
+    public List<User> findOtherUsers(String userId) {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT user_id, username FROM users where user_id != ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, Integer.parseInt(userId));
+        while(results.next()) {
+            User user = mapRowToLimitedUser(results);
+            users.add(user);
+        }
+        return users;
+    }
+
+    @Override
     public User findByUsername(String username) throws UsernameNotFoundException {
         String sql = "SELECT user_id, username, password_hash FROM users WHERE username ILIKE ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
@@ -86,6 +98,14 @@ public class JdbcUserDao implements UserDao {
         user.setPassword(rs.getString("password_hash"));
         user.setActivated(true);
         user.setAuthorities("USER");
+        return user;
+    }
+
+    private User mapRowToLimitedUser(SqlRowSet rs) {
+        User user = new User();
+        user.setId(rs.getLong("user_id"));
+        user.setUsername(rs.getString("username"));
+        user.setActivated(true);
         return user;
     }
 }
