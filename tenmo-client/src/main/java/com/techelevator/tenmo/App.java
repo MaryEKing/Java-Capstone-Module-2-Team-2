@@ -1,10 +1,10 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.UserCredentials;
-import com.techelevator.tenmo.services.AuthenticationService;
-import com.techelevator.tenmo.services.AuthenticationServiceException;
+import com.techelevator.tenmo.model.*;
+import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ConsoleService;
+
+import java.util.ArrayList;
 
 public class App {
 
@@ -21,19 +21,33 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
-	
+
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
+    private AccountService accountService;
+    private UserService userService;
+    private TransactionService transactionService;
 
     public static void main(String[] args) {
-    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
+    	App app = new App(new ConsoleService(System.in, System.out),
+				new AuthenticationService(API_BASE_URL),
+				new AccountService(),
+				new UserService(),
+				new TransactionService());
     	app.run();
     }
 
-    public App(ConsoleService console, AuthenticationService authenticationService) {
+    public App(ConsoleService console,
+			   AuthenticationService authenticationService,
+			   AccountService accountService,
+			   UserService userService,
+			   TransactionService transactionService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
+		this.accountService = accountService;
+		this.userService = userService;
+		this.transactionService = transactionService;
 	}
 
 	public void run() {
@@ -68,7 +82,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
+		Account account = accountService.getAccount(1001L);
+		System.out.println("Account Balance is: " + account.getBalance());
 		
 	}
 
@@ -83,7 +98,51 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
+		User[] users = userService.getUserList();
+		if(users != null){
+			boolean sendBucks = true;
+			while (sendBucks) {
+				// Filtering users other than the logged in user (Other Users)
+				ArrayList<String> otherUsers = new ArrayList<>();
+				User loggedInUser = currentUser.getUser();
+				String currentUsername = loggedInUser.getUsername();
+				for(int i = 0; i < users.length; i++) {
+					String username = users[i].getUsername();
+					if(!username.equals(currentUsername)){
+						otherUsers.add(username);
+					}
+				}
+				System.out.println("Please select the user to send TE bucks");
+				String toUsername = (String)console.getChoiceFromOptions(otherUsers.toArray());
+
+				// Get hold of the toUser object based on toUsername
+				User toUser = null;
+				for (int i = 0; i < users.length; i ++) {
+					String username = users[i].getUsername();
+					if(username.equals(toUsername)) {
+						toUser = users[i];
+					}
+				}
+				System.out.println("Please enter amount to transfer!");
+				String amountToTransfer = console.getUserInput(">>");
+
+				Transaction transaction = new Transaction();
+				transaction.setFromUserId(loggedInUser.getId().longValue());
+				transaction.setToUserId(toUser.getId().longValue());
+				transaction.setAmount(Double.parseDouble(amountToTransfer));
+				transaction.setTransactionType("Send");
+				transaction.setTransactionTypeId(2L);
+				String transactionStatus = transactionService.sendTEBucks(transaction);
+				System.out.println(transactionStatus);
+				sendBucks = false;
+
+
+			}
+		} else {
+			System.out.println("No user found");
+
+		}
+
 		
 	}
 
@@ -151,4 +210,5 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		String password = console.getUserInput("Password");
 		return new UserCredentials(username, password);
 	}
+
 }
