@@ -14,8 +14,9 @@ public class JdbcAccountDao implements AccountDao{
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    //get account by user ID
     @Override
-    public AccountDTO getAccountBalance(Long id) {
+    public AccountDTO getAccount(Long id) {
         AccountDTO accountDTO = null;
         String sql = "SELECT * from accounts " +
                 "join users on users.user_id = accounts.user_id " +

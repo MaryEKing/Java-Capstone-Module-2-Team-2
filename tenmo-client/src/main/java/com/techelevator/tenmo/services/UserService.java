@@ -15,6 +15,7 @@ public class UserService {
     public static final String API_BASE_URL = "http://localhost:8080/user";
     private RestTemplate restTemplate = new RestTemplate();
 
+    //get all users
     public User[] getUserList(){
         User[] users = null;
         try {

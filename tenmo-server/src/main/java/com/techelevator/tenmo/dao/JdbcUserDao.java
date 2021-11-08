@@ -33,6 +33,7 @@ public class JdbcUserDao implements UserDao {
     }
     }
 
+    //get all registered users
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
@@ -45,17 +46,6 @@ public class JdbcUserDao implements UserDao {
         return users;
     }
 
-    @Override
-    public List<User> findOtherUsers(String userId) {
-        List<User> users = new ArrayList<>();
-        String sql = "SELECT user_id, username FROM users where user_id != ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, Integer.parseInt(userId));
-        while(results.next()) {
-            User user = mapRowToLimitedUser(results);
-            users.add(user);
-        }
-        return users;
-    }
 
     @Override
     public User findByUsername(String username) throws UsernameNotFoundException {

@@ -5,6 +5,7 @@ import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ConsoleService;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class App {
 
@@ -81,15 +82,42 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		}
 	}
 
+
+	//option 1 - View your current balance
 	private void viewCurrentBalance() {
-		Account account = accountService.getAccount(1001L);
+    	Long currentUserId = currentUser.getUser().getId().longValue();
+		Account account = accountService.getAccount(currentUserId);
 		System.out.println("Account Balance is: " + account.getBalance());
 		
 	}
 
+
+	// option 3 - View your past transfers
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
-		
+		Long userId = currentUser.getUser().getId().longValue();
+		Transaction[] transactionArray = transactionService.getAllTransactions(userId);
+
+		Long[] transactionIdArray = new Long[transactionArray.length];
+		for(int i = 0; i < transactionArray.length; i++) {
+			transactionIdArray[i] = transactionArray[i].getTransactionId();
+		}
+		Long selectedTransactionId = (Long)console.getChoiceFromOptions(transactionIdArray);
+
+		Transaction selectedTransaction = null;
+		for(int i = 0; i < transactionArray.length; i++){
+			Long eachTransactionId = transactionArray[i].getTransactionId();
+			if(selectedTransactionId.equals(eachTransactionId)){
+				selectedTransaction = transactionArray[i];
+			}
+		}
+		if(selectedTransaction != null) {
+			System.out.println("Transfer ID           : " + selectedTransaction.getTransactionId());
+			System.out.println("Transfer Type         : " + selectedTransaction.getTransactionType());
+			System.out.println("Transfer Account From : " + selectedTransaction.getFromAccountId());
+			System.out.println("Transfer Account To   : " + selectedTransaction.getToAccountId());
+			System.out.println("Transfer Amount       : " + selectedTransaction.getAmount());
+			System.out.println("Transfer Status       : " + selectedTransaction.getTransactionStatus());
+		}
 	}
 
 	private void viewPendingRequests() {
@@ -97,32 +125,43 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		
 	}
 
+
+	//option 2 - Send TE bucks
 	private void sendBucks() {
+    	//get all users from user service
 		User[] users = userService.getUserList();
 		if(users != null){
 			boolean sendBucks = true;
 			while (sendBucks) {
 				// Filtering users other than the logged in user (Other Users)
 				ArrayList<String> otherUsers = new ArrayList<>();
+				// logged in user is a current user
 				User loggedInUser = currentUser.getUser();
+				// getting current user name
 				String currentUsername = loggedInUser.getUsername();
+				//iterating through the users array to find the other user except logged in user
 				for(int i = 0; i < users.length; i++) {
 					String username = users[i].getUsername();
+					//if username is not equal to current user add in the names in otherUsers List(create otherUser List)
 					if(!username.equals(currentUsername)){
 						otherUsers.add(username);
 					}
 				}
+				//prompt user to select registered user to send TE bucks
 				System.out.println("Please select the user to send TE bucks");
+				//using the helper method, holding the user input
 				String toUsername = (String)console.getChoiceFromOptions(otherUsers.toArray());
 
 				// Get hold of the toUser object based on toUsername
 				User toUser = null;
+				//iterating through the array to find the selected user to send the TE bucks
 				for (int i = 0; i < users.length; i ++) {
 					String username = users[i].getUsername();
 					if(username.equals(toUsername)) {
 						toUser = users[i];
 					}
 				}
+				//prompt user to enter the amount
 				System.out.println("Please enter amount to transfer!");
 				String amountToTransfer = console.getUserInput(">>");
 

@@ -1,12 +1,16 @@
 package com.techelevator.tenmo.model;
 
 public class TransactionDTO {
+    private Long transactionId;
     private Long fromUserId;
     private Long toUserId;
+    private Long fromAccountId;
+    private Long toAccountId;
     private Double amount;
     private String transactionType;
+    private String transactionStatus;
     private Long transactionTypeId;
-    private Long transactionStatusId = 2L;
+    private Long transactionStatusId;
 
     public Long getFromUserId() {
         return fromUserId;
@@ -54,5 +58,37 @@ public class TransactionDTO {
 
     public void setTransactionStatusId(Long transactionStatusId) {
         this.transactionStatusId = transactionStatusId;
+    }
+
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public Long getFromAccountId() {
+        return fromAccountId;
+    }
+
+    public void setFromAccountId(Long fromAccountId) {
+        this.fromAccountId = fromAccountId;
+    }
+
+    public Long getToAccountId() {
+        return toAccountId;
+    }
+
+    public void setToAccountId(Long toAccountId) {
+        this.toAccountId = toAccountId;
+    }
+
+    public String getTransactionStatus() {
+        return transactionStatus;
+    }
+
+    public void setTransactionStatus(String transactionStatus) {
+        this.transactionStatus = transactionStatus;
     }
 }
