@@ -19,6 +19,6 @@ public class AccountController {
 
     @RequestMapping(path = "/account/{id}", method = RequestMethod.GET)
     public AccountDTO getAccountById(@PathVariable Long id){
-        return accountDao.getAccountBalance(id);
+        return accountDao.getAccount(id);
     }
 }

@@ -14,6 +14,7 @@ public class AccountService {
     public static final String API_BASE_URL = "http://localhost:8080/account/";
     private RestTemplate restTemplate = new RestTemplate();
 
+    //get account by userId
     public Account getAccount(Long id) {
         Account account = null;
         try {

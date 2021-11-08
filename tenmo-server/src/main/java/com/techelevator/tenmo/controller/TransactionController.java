@@ -3,10 +3,9 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.JdbcTransactionDao;
 import com.techelevator.tenmo.model.TransactionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class TransactionController {
@@ -18,7 +17,13 @@ public class TransactionController {
     }
 
     @RequestMapping(path = "/transaction", method = RequestMethod.POST)
-    public String getAllUser(@RequestBody TransactionDTO transactionDTO){
+    public String transferAmount(@RequestBody TransactionDTO transactionDTO){
+        transactionDTO.setTransactionStatusId(2L);
         return jdbcTransactionDao.transferAmount(transactionDTO);
+    }
+
+    @RequestMapping(path = "/transaction", method = RequestMethod.GET)
+    public List<TransactionDTO> getAllTransactions(@RequestParam Long userId){
+        return jdbcTransactionDao.getAllTransactions(userId);
     }
 }
